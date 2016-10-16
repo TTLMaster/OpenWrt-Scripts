@@ -1,0 +1,12 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+stop() {
+	[ -f /tmp/yotaban ] && {
+		while read -r i; do
+			[ "`echo $i | sed -n '/^#.*$/p'`" ] && continue
+			iptables -D FORWARD --destination $i -j REJECT;
+		done < /tmp/yotaban
+	}
+}
