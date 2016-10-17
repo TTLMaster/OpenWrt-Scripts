@@ -1,8 +1,6 @@
 #!/bin/sh
 while true; do
-	content=$(wget captive.apple.com -q -O -)
-	if [ `echo $content | grep -c "tethering.svg" ` -gt 0 ]
-	then
+	if wget captive.apple.com -q -O - | grep -q 'tethering.svg'; then
 		/etc/init.d/network restart
 	fi
 	sleep 10
