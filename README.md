@@ -23,9 +23,8 @@
 
 А теперь самое интересное - команды для перезапуска модема с роутера.
 
-1. `COMMAND=AT^RESET gcom -d $device -s /etc/gcom/runcommand.gcom`
-
-2. `COMMAND=AT+CFUN=1,1 gcom -d $device -s /etc/gcom/runcommand.gcom`
+ 1. `COMMAND=AT^RESET gcom -d $device -s /etc/gcom/runcommand.gcom`
+ 2. `COMMAND=AT+CFUN=1,1 gcom -d $device -s /etc/gcom/runcommand.gcom`
  
 Выбирайте любую понравившуюся. Первая комнада чисто хуавеевская. Где $device - путь до командного порта. Скорее всего это будет /dev/ttyUSB0. В стике всегда несколько портов, обычно это самый старший. У меня это /dev/ttyUSB2.
 
