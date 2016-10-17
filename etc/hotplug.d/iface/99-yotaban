@@ -4,10 +4,10 @@
 
 /etc/init.d/yotaban enabled && {
 	[ -f /tmp/yotaban ] && {
-		# delete old records
+		# remove old records
 		while read -r i; do
 			[ "`echo $i | sed -n '/^#.*$/p'`" ] && continue
-			iptables -D FORWARD --destination $i -j REJECT;
+			iptables -D FORWARD -d $i -j DROP;
 		done < /tmp/yotaban
 	}
 	
@@ -18,6 +18,6 @@
 	# add new records
 	while read -r i; do
 		[ "`echo $i | sed -n '/^#.*$/p'`" ] && continue
-		iptables -I FORWARD --destination $i -j REJECT;
+		iptables -I FORWARD -d $i -j DROP;
 	done < /tmp/yotaban
 }
