@@ -1,0 +1,11 @@
+#!/bin/sh /etc/rc.common
+
+START=19
+
+start() {
+	iptables -t mangle -A POSTROUTING -j TTL --ttl-set 64
+}
+
+stop() {
+	iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64
+}
