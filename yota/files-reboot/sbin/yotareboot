@@ -1,7 +1,14 @@
 #!/bin/sh
 while true; do
+	method="`uci -q get yota.@yotareboot[0].method`"
+	hiip="`uci -q get yota.@yotareboot[0].hiip`"
+	telip="`uci -q get yota.@yotareboot[0].telip`"
+	telport="`uci -q get yota.@yotareboot[0].telport`"
+	adbip="`uci -q get yota.@yotareboot[0].adbip`"
+	adbport="`uci -q get yota.@yotareboot[0].adbport`"
+	usbreset="`uci -q get yota.@yotareboot[0].usbreset`"
 	if wget captive.apple.com -q -O - | grep -q 'tethering.svg'; then
-		case "`uci -q get yota.@yotareboot[0].method`" in
+		case $method in
 			reboot)
 				reboot
 				;;
@@ -38,20 +45,23 @@ while true; do
 				# на
 				# /api/device/control
 				;;
+			telnet)
+				[ "$telip" -a "$telport" ] && (echo reboot; sleep 1) | nc $telip $telport & (sleep 1; kill `pidof $(ps | grep "nc $telip $telport" | grep -v 'grep')`)
+				;;
 			adbreboot)
-				[ "`uci -q get yota.@yotareboot[0].adbip`" ] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
 				adb reboot
 				;;
 			adbshellreboot)
-				[ "`uci -q get yota.@yotareboot[0].adbip`" ] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
 				adb shell reboot
 				;;
 			adbatreset)
-				[ "`uci -q get yota.@yotareboot[0].adbip`"] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
 				adb shell atc AT^RESET
 				;;
 			adbatcfun)
-				[ "`uci -q get yota.@yotareboot[0].adbip`"] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
 				adb shell atc AT+CFUN=1,1
 				;;
 			atreset)
@@ -77,7 +87,7 @@ while true; do
 				COMMAND=AT+CFUN=1,1 gcom -d $DEVICE -s /etc/gcom/runcommand.gcom
 				;;
 			usbreset)
-				usbreset "`uci -q get yota.@yotareboot[0].usbreset`"
+				[ "$usbreset" ] && usbreset "$usbreset"
 				;;
 			network)
 				/etc/init.d/network restart
