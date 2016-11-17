@@ -1,4 +1,9 @@
 #!/bin/sh
+ttysearch() {
+	for d in $(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* | sort -r); do
+		ttydevice=$d gcom -s /usr/share/yota/gcom/probeport.gcom && break
+	done
+}
 while true; do
 	method="`uci -q get yota.@yotareboot[0].method`"
 	hiip="`uci -q get yota.@yotareboot[0].hiip`"
@@ -6,6 +11,7 @@ while true; do
 	telport="`uci -q get yota.@yotareboot[0].telport`"
 	adbip="`uci -q get yota.@yotareboot[0].adbip`"
 	adbport="`uci -q get yota.@yotareboot[0].adbport`"
+	ttydevice="`uci -q get yota.@yotareboot[0].ttydevice`"
 	usbreset="`uci -q get yota.@yotareboot[0].usbreset`"
 	if wget captive.apple.com -q -O - | grep -q 'tethering.svg'; then
 		case $method in
@@ -65,26 +71,12 @@ while true; do
 				adb shell atc AT+CFUN=1,1
 				;;
 			atreset)
-				devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r);
-				for d in $devices; do
-					DEVICE=$d gcom -s /etc/gcom/probeport.gcom > /dev/null 2>&1
-					if [ $? = 0 ]; then
-						DEVICE="$d"
-						break
-					fi
-				done
-				COMMAND=AT^RESET gcom -d $DEVICE -s /etc/gcom/runcommand.gcom
+				[ "$ttydevice" ] || ttysearch
+				COMMAND=AT^RESET gcom -d $ttydevice -s /usr/share/yota/gcom/runcommand.gcom
 				;;
 			atcfun)
-				devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r);
-				for d in $devices; do
-					DEVICE=$d gcom -s /etc/gcom/probeport.gcom > /dev/null 2>&1
-					if [ $? = 0 ]; then
-						DEVICE="$d"
-						break
-					fi
-				done
-				COMMAND=AT+CFUN=1,1 gcom -d $DEVICE -s /etc/gcom/runcommand.gcom
+				[ "$ttydevice" ] || ttysearch
+				COMMAND=AT+CFUN=1,1 gcom -d $ttydevice -s /usr/share/yota/gcom/runcommand.gcom
 				;;
 			usbreset)
 				[ "$usbreset" ] && usbreset "$usbreset"
