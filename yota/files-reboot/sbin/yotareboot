@@ -4,6 +4,7 @@ ttysearch() {
 		ttydevice=$d gcom -s /usr/share/yota/gcom/probeport.gcom && break
 	done
 }
+
 while true; do
 	method="`uci -q get yota.@yotareboot[0].method`"
 	hiip="`uci -q get yota.@yotareboot[0].hiip`"
