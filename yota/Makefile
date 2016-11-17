@@ -59,7 +59,7 @@ endef
 define Package/yotareboot
 $(call Package/yota/Default)
 	TITLE+= (reboots on tethering detection)
-	DEPENDS:=+yota +wget
+	DEPENDS:=+yota +wget +ca-certificates
 endef
 
 define Package/yotareboot/description
