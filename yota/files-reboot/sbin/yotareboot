@@ -57,7 +57,7 @@ while true; do
 			atreset)
 				devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r);
 				for d in $devices; do
-					DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
+					DEVICE=$d gcom -s /etc/gcom/probeport.gcom > /dev/null 2>&1
 					if [ $? = 0 ]; then
 						DEVICE="$d"
 						break
@@ -68,7 +68,7 @@ while true; do
 			atcfun)
 				devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r);
 				for d in $devices; do
-					DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
+					DEVICE=$d gcom -s /etc/gcom/probeport.gcom > /dev/null 2>&1
 					if [ $? = 0 ]; then
 						DEVICE="$d"
 						break
