@@ -1,0 +1,5 @@
+config 'yotareboot'
+	option 'method' 'reboot'
+	option 'usbreset 'HUAWEI Mobile'
+	option 'adbip' '192.168.8.1'
+	option 'hiip' '192.168.8.1'

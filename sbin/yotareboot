@@ -1,8 +1,0 @@
-#!/bin/sh
-while true; do
-	if wget captive.apple.com -q -O - | grep -q 'tethering.svg'; then
-		/etc/init.d/network restart
-	fi
-	sleep 10
-done
-

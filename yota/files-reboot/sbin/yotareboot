@@ -1,0 +1,89 @@
+#!/bin/sh
+while true; do
+	if wget captive.apple.com -q -O - | grep -q 'tethering.svg'; then
+		case "`uci -q get yota.@yotareboot[0].method`" in
+			reboot)
+				reboot
+				;;
+			hiconn)
+				# заготовка для реконнекта через HiLink API
+				#
+				#
+				# нужно из /api/webserver/SesTokInfo взять SesInfo и TokInfo
+				# SesInfo передаем как кукис
+				# TokInfo как хидер __RequestVerificationToken
+				#
+				# посылкаем два запроса:
+				# <?xml version="1.0" encoding="UTF-8"?><request><dataswitch>0</dataswitch></request>
+				# на
+				# /api/dialup/mobile-dataswitch
+				# для дисконнекта
+				#
+				# и далее
+				# <?xml version="1.0" encoding="UTF-8"?><request><dataswitch>1</dataswitch></request>
+				# на
+				# /api/dialup/mobile-dataswitch
+				# для коннекта
+				;;
+			hireb)
+				# заготовка для ребута через HiLink API
+				#
+				#
+				# нужно из /api/webserver/SesTokInfo взять SesInfo и TokInfo
+				# SesInfo передаем как кукис
+				# TokInfo как хидер __RequestVerificationToken
+				#
+				# посылкаем запрос:
+				# <?xml version="1.0" encoding="UTF-8"?><request><Control>1</Control></request>
+				# на
+				# /api/device/control
+				;;
+			adbreboot)
+				[ "`uci -q get yota.@yotareboot[0].adbip`" ] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				adb reboot
+				;;
+			adbshellreboot)
+				[ "`uci -q get yota.@yotareboot[0].adbip`" ] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				adb shell reboot
+				;;
+			adbatreset)
+				[ "`uci -q get yota.@yotareboot[0].adbip`"] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				adb shell atc AT^RESET
+				;;
+			adbatcfun)
+				[ "`uci -q get yota.@yotareboot[0].adbip`"] && adb connect "`uci -q get yota.@yotareboot[0].adbip`"
+				adb shell atc AT+CFUN=1,1
+				;;
+			atreset)
+				devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r);
+				for d in $devices; do
+					DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
+					if [ $? = 0 ]; then
+						DEVICE="$d"
+						break
+					fi
+				done
+				COMMAND=AT^RESET gcom -d $DEVICE -s /etc/gcom/runcommand.gcom
+				;;
+			atcfun)
+				devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r);
+				for d in $devices; do
+					DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
+					if [ $? = 0 ]; then
+						DEVICE="$d"
+						break
+					fi
+				done
+				COMMAND=AT+CFUN=1,1 gcom -d $DEVICE -s /etc/gcom/runcommand.gcom
+				;;
+			usbreset)
+				usbreset "`uci -q get yota.@yotareboot[0].usbreset`"
+				;;
+			network)
+				/etc/init.d/network restart
+				;;
+		esac
+	fi
+	sleep 10
+done
+

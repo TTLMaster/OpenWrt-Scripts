@@ -1,0 +1,16 @@
+#!/bin/sh
+
+[ "$ACTION" = ifup ] || exit 0
+
+/etc/init.d/yotaban enabled && {
+	# remove old records
+	iptables -F yotaban
+	
+	# update and add new records
+	wget -O - http://cdn.rawgit.com/TTLMaster/yota-ban-list/master/list.txt | \
+	#wget -O - https://raw.githubusercontent.com/TTLMaster/yota-ban-list/master/list.txt | \
+	while read -r i; do
+		[ "`echo $i | sed -n '/^#.*$/p'`" ] && continue
+		iptables -A yotaban -d $i -j DROP
+	done
+}
