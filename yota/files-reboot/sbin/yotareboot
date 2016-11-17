@@ -56,10 +56,10 @@ while true; do
 				[ "$telip" -a "$telport" ] && (echo reboot; sleep 1) | nc $telip $telport & (sleep 1; kill `pidof $(ps | grep "nc $telip $telport" | grep -v 'grep')`)
 				;;
 			telnetatreset)
-				[ "$telip" -a "$telport" ] && (echo atc AT^RESET; sleep 1) | nc $telip $telport & (sleep 1; kill `pidof $(ps | grep "nc $telip $telport" | grep -v 'grep')`)
+				[ "$telip" -a "$telport" ] && (echo "echo -e 'AT^RESET\r' > /dev/appvcom"; sleep 1) | nc $telip $telport & (sleep 1; kill `pidof $(ps | grep "nc $telip $telport" | grep -v 'grep')`)
 				;;
 			telnetatcfun)
-				[ "$telip" -a "$telport" ] && (echo atc AT+CFUN=1,1; sleep 1) | nc $telip $telport & (sleep 1; kill `pidof $(ps | grep "nc $telip $telport" | grep -v 'grep')`)
+				[ "$telip" -a "$telport" ] && (echo "echo -e 'AT+CFUN=1,1\r' > /dev/appvcom"; sleep 1) | nc $telip $telport & (sleep 1; kill `pidof $(ps | grep "nc $telip $telport" | grep -v 'grep')`)
 				;;
 			adbreboot)
 				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
@@ -71,11 +71,11 @@ while true; do
 				;;
 			adbatreset)
 				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
-				adb shell atc AT^RESET
+				adb shell "echo -e 'AT^RESET\r' > /dev/appvcom"
 				;;
 			adbatcfun)
 				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
-				adb shell atc AT+CFUN=1,1
+				adb shell "echo -e 'AT+CFUN=1,1\r' > /dev/appvcom"
 				;;
 			atreset)
 				[ "$ttydevice" ] || ttysearch
