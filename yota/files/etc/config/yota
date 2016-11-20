@@ -1,4 +1,7 @@
-config 'yotareboot'
+config 'ttl'
+	option 'value' '64'
+	option 'mode' 'set'
+config 'reboot'
 	option 'method' 'reboot'
 	option 'hiip' '192.168.8.1'
 	option 'telip' '192.168.8.1'

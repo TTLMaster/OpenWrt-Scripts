@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yota
-PKG_VERSION:=20161118
+PKG_VERSION:=20161120
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
@@ -26,12 +26,12 @@ endef
 define Package/yota
 $(call Package/yota/Default)
 	TITLE+= (base files)
-	DEPENDS:=+gcom +iptables-mod-ipopt
+	DEPENDS:=+gcom +iptables-mod-ipopt +iptables
 endef
 
 define Package/yota/description
 $(call Package/yota/Default/description)
-	Base files for cheat - fix ttl, etc.
+	Base files for cheat - fix ttl, configs, etc.
 endef
 
 define Package/yotaban
