@@ -26,7 +26,7 @@ endef
 define Package/yota
 $(call Package/yota/Default)
 	TITLE+= (base files)
-	DEPENDS:=+gcom +iptables-mod-ipopt +iptables
+	DEPENDS:=+comgt +iptables-mod-ipopt +iptables
 endef
 
 define Package/yota/description
