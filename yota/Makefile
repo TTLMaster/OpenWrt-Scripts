@@ -37,7 +37,7 @@ endef
 define Package/yotaban
 $(call Package/yota/Default)
 	TITLE+= (bans bad IPs)
-	DEPENDS:=+yota +iptables
+	DEPENDS:=+yota +iptables +wget +ca-certificates
 endef
 
 define Package/yotaban/description
@@ -48,7 +48,7 @@ endef
 define Package/yotaban-nossl
 $(call Package/yota/Default)
 	TITLE+= (bans bad IPs, mirror source)
-	DEPENDS:=+yota
+	DEPENDS:=+yota +iptables
 endef
 
 define Package/yotaban-nossl/description
@@ -59,7 +59,7 @@ endef
 define Package/yotareboot
 $(call Package/yota/Default)
 	TITLE+= (reboots on tethering detection)
-	DEPENDS:=+yota +wget +ca-certificates
+	DEPENDS:=+yota
 endef
 
 define Package/yotareboot/description
