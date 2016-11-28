@@ -1,7 +1,11 @@
 #!/bin/sh
 ttysearch() {
 	for d in $(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* | sort -r); do
-		ttydevice=$d gcom -s /usr/share/yota/gcom/probeport.gcom && break
+		DEVICE=$d gcom -s /usr/share/yota/gcom/probeport.gcom
+		if [ $? = 0 ]; then
+			ttydevice=$d
+			break
+		fi
 	done
 }
 
