@@ -1,0 +1,14 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+start() {
+	iptables -N yotaban
+	iptables -A FORWARD -j yotaban
+}
+
+stop() {
+	iptables -D FORWARD -j yotaban
+	iptables -F yotaban
+	iptables -X yotaban
+}

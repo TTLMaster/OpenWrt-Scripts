@@ -1,0 +1,97 @@
+#!/bin/sh
+ttysearch() {
+	for d in $(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* | sort -r); do
+		ttydevice=$d gcom -s /usr/share/yota/gcom/probeport.gcom && break
+	done
+}
+
+while true; do
+	method="`uci -q get yota.@reboot[0].method`"
+	hiip="`uci -q get yota.@reboot[0].hiip`"
+	telip="`uci -q get yota.@reboot[0].telip`"
+	telport="`uci -q get yota.@reboot[0].telport`"
+	adbip="`uci -q get yota.@reboot[0].adbip`"
+	adbport="`uci -q get yota.@reboot[0].adbport`"
+	ttydevice="`uci -q get yota.@reboot[0].ttydevice`"
+	usbreset="`uci -q get yota.@reboot[0].usbreset`"
+	if wget captive.apple.com -q -O - | grep -q 'tethering.svg'; then
+		case $method in
+			reboot)
+				reboot
+				;;
+			hiconn)
+				# заготовка для реконнекта через HiLink API
+				#
+				#
+				# нужно из /api/webserver/SesTokInfo взять SesInfo и TokInfo
+				# SesInfo передаем как кукис
+				# TokInfo как хидер __RequestVerificationToken
+				#
+				# посылкаем два запроса:
+				# <?xml version="1.0" encoding="UTF-8"?><request><dataswitch>0</dataswitch></request>
+				# на
+				# /api/dialup/mobile-dataswitch
+				# для дисконнекта
+				#
+				# и далее
+				# <?xml version="1.0" encoding="UTF-8"?><request><dataswitch>1</dataswitch></request>
+				# на
+				# /api/dialup/mobile-dataswitch
+				# для коннекта
+				;;
+			hireb)
+				# заготовка для ребута через HiLink API
+				#
+				#
+				# нужно из /api/webserver/SesTokInfo взять SesInfo и TokInfo
+				# SesInfo передаем как кукис
+				# TokInfo как хидер __RequestVerificationToken
+				#
+				# посылкаем запрос:
+				# <?xml version="1.0" encoding="UTF-8"?><request><Control>1</Control></request>
+				# на
+				# /api/device/control
+				;;
+			telnetreboot)
+				[ "$telip" -a "$telport" ] && (echo reboot; sleep 1) | nc $telip $telport & (sleep 1; kill `ps w | grep "nc $telip $telport" | grep -v 'grep' | awk '{print $1}'`)
+				;;
+			telnetatreset)
+				[ "$telip" -a "$telport" ] && (echo "echo -e 'AT^RESET\r' > /dev/appvcom"; sleep 1) | nc $telip $telport & (sleep 1; kill `ps w | grep "nc $telip $telport" | grep -v 'grep' | awk '{print $1}'`)
+				;;
+			telnetatcfun)
+				[ "$telip" -a "$telport" ] && (echo "echo -e 'AT+CFUN=1,1\r' > /dev/appvcom"; sleep 1) | nc $telip $telport & (sleep 1; kill `ps w | grep "nc $telip $telport" | grep -v 'grep' | awk '{print $1}'`)
+				;;
+			adbreboot)
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
+				adb reboot
+				;;
+			adbshellreboot)
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
+				adb shell reboot
+				;;
+			adbatreset)
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
+				adb shell "echo -e 'AT^RESET\r' > /dev/appvcom"
+				;;
+			adbatcfun)
+				[ "$adbip" -a "$adbport" ] && adb connect $adbip:$adport
+				adb shell "echo -e 'AT+CFUN=1,1\r' > /dev/appvcom"
+				;;
+			atreset)
+				[ "$ttydevice" ] || ttysearch
+				COMMAND=AT^RESET gcom -d $ttydevice -s /usr/share/yota/gcom/runcommand.gcom
+				;;
+			atcfun)
+				[ "$ttydevice" ] || ttysearch
+				COMMAND=AT+CFUN=1,1 gcom -d $ttydevice -s /usr/share/yota/gcom/runcommand.gcom
+				;;
+			usbreset)
+				[ "$usbreset" ] && usbreset "$usbreset"
+				;;
+			network)
+				/etc/init.d/network restart
+				;;
+		esac
+	fi
+	sleep 10
+done
