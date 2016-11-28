@@ -1,0 +1,15 @@
+#!/bin/sh
+
+[ "$ACTION" = ifup ] || exit 0
+[ "`ps w | grep 'wget -O - https://raw.githubusercontent.com/TTLMaster/yota-ban-list/master/list.txt' | grep -v 'grep'`" ] && exit 0
+/etc/init.d/yotaban enabled || exit 0
+
+# remove old records
+iptables -F yotaban
+
+# update and add new records
+wget -O - https://raw.githubusercontent.com/TTLMaster/yota-ban-list/master/list.txt | \
+while read -r i; do
+	[ "`echo $i | sed -n '/^#.*$/p'`" ] && continue
+	iptables -A yotaban -d $i -j DROP
+done
